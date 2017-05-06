@@ -9,6 +9,11 @@ Widget::Widget(QWidget *parent) :
 {
 	ui->setupUi(this);
 	on_entropyButton_clicked();
+
+	connect(ui->securityLevelComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+			random, [this](int index) {
+		random->setSecurityLevel((QRng::SecurityLevel)ui->securityLevelComboBox->currentIndex());
+	});
 }
 
 Widget::~Widget()
@@ -19,7 +24,6 @@ Widget::~Widget()
 void Widget::on_generateButton_clicked()
 {
 	try {
-		random->setSecurityLevel((QRng::SecurityLevel)ui->securityLevelComboBox->currentIndex());
 		auto data = random->generateRandom(ui->generateSpinBox->value());
 		switch (ui->encodingComboBox->currentIndex()) {
 		case 0:	//base64
