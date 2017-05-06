@@ -108,7 +108,7 @@ int QRng::currentEntropy(bool asBytes) const
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
 	switch (_securityLevel) {
 	case QRng::NormalSecurity:
-		return -1;
+		return UnlimitedEntropy;
 	case QRng::HighSecurity:
 	{
 		QFile entropyFile(QStringLiteral("/proc/sys/kernel/random/entropy_avail"));
@@ -126,7 +126,7 @@ int QRng::currentEntropy(bool asBytes) const
 	}
 	default:
 		Q_UNREACHABLE();
-		return -1;
+		return UnlimitedEntropy;
 	}
 #else
 	Q_UNUSED(asBytes);
