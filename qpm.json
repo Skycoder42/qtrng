@@ -1,6 +1,6 @@
 {
   "name": "de.skycoder42.qrng",
-  "description": "Qt Random number generator wrapper around "secure" os RNGS",
+  "description": "Qt Random number generator wrapper around \"secure\" os RNGS",
   "author": {
 	"name": "Skycoder",
 	"email": "skycoder42.de@gmx.de"
