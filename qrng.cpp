@@ -1,6 +1,29 @@
 #include "qrng.h"
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_UNIX)
 #include <QFile>
+#elif defined(Q_OS_WIN)
+#include <qt_windows.h>
+#include <QDebug>
+#endif
+
+#ifdef Q_OS_WIN
+static QString formatWinError(DWORD winError)
+{
+	wchar_t *buffer = NULL;
+	auto num = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+							  NULL,
+							  winError,
+							  0,
+							  (LPWSTR)&buffer,
+							  0,
+							  NULL);
+	if(buffer) {
+		QString res = QString::fromWCharArray(buffer, num);
+		LocalFree(buffer);
+		return res;
+	} else
+		return QString();
+}
 #endif
 
 QRng::QRng(QObject *parent) :
@@ -42,6 +65,29 @@ void QRng::generateRandom(void *data, const int size)
 		rLen -= read;
 	}
 	randomFile.close();
+#elif defined(Q_OS_WIN)
+	HCRYPTPROV hProvider = NULL;
+
+	if (!::CryptAcquireContext(&hProvider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT)) {
+		throw QRngException(QStringLiteral("Failed to load RNG with error: %1")
+							.arg(formatWinError(GetLastError()))
+							.toUtf8());
+	}
+
+	if (!::CryptGenRandom(hProvider, (DWORD)size, (BYTE*)data))
+	{
+		::CryptReleaseContext(hProvider, 0);
+		throw QRngException(QStringLiteral("Failed to load RNG with error: %1")
+							.arg(formatWinError(GetLastError()))
+							.toUtf8());
+	}
+
+	if (!::CryptReleaseContext(hProvider, 0)) {
+		qWarning() << "Failed to release RNG with error:"
+				   << formatWinError(GetLastError());
+	}
+#else
+#error "Unsupported OS"
 #endif
 }
 
