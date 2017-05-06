@@ -12,7 +12,7 @@ Widget::Widget(QWidget *parent) :
 
 	connect(ui->securityLevelComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
 			random, [this](int index) {
-		random->setSecurityLevel((QRng::SecurityLevel)ui->securityLevelComboBox->currentIndex());
+		random->setSecurityLevel((QRng::SecurityLevel)index);
 	});
 }
 

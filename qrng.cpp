@@ -10,7 +10,7 @@ QRng::QRng(QObject *parent) :
 
 void QRng::generateRandom(void *data, const int size)
 {
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_UNIX)
 	QFile randomFile;
 	switch (_securityLevel) {
 	case QRng::NormalSecurity:
@@ -59,7 +59,7 @@ QRng::SecurityLevel QRng::securityLevel() const
 
 int QRng::currentEntropy(bool asBytes) const
 {
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
 	switch (_securityLevel) {
 	case QRng::NormalSecurity:
 		return -1;
@@ -82,6 +82,9 @@ int QRng::currentEntropy(bool asBytes) const
 		Q_UNREACHABLE();
 		return -1;
 	}
+#else
+	Q_UNUSED(asBytes);
+	return UnlimitedEntropy;
 #endif
 }
 
