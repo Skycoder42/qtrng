@@ -1,5 +1,4 @@
 #include "qrng.h"
-#include <QDebug>
 #ifdef Q_OS_UNIX
 #include <QFile>
 #endif
@@ -26,17 +25,19 @@ void QRng::generateRandom(void *data, const int size)
 	}
 
 	if(!randomFile.open(QIODevice::ReadOnly | QIODevice::Unbuffered)) {
-		qWarning() << "Failed to read from" << randomFile.fileName()
-				   << "with error" << randomFile.errorString();
-		return;//TODO throw
+		throw QRngException(QStringLiteral("Failed to read from %1 with error: %2")
+							.arg(randomFile.fileName())
+							.arg(randomFile.errorString())
+							.toUtf8());
 	}
 	auto rLen = size;
 	while (rLen > 0) {
 		auto read = randomFile.read((char*)data, rLen);
 		if(read == -1) {
-			qWarning() << "Failed to read from" << randomFile.fileName()
-					   << "with error" << randomFile.errorString();
-			return;//TODO throw
+			throw QRngException(QStringLiteral("Failed to read from %1 with error: %2")
+								.arg(randomFile.fileName())
+								.arg(randomFile.errorString())
+								.toUtf8());
 		}
 		rLen -= read;
 	}
@@ -66,8 +67,9 @@ int QRng::currentEntropy(bool asBytes) const
 	{
 		QFile entropyFile(QStringLiteral("/proc/sys/kernel/random/entropy_avail"));
 		if(!entropyFile.open(QIODevice::ReadOnly)) {
-			qWarning() << "Failed to read entropy with error" << entropyFile.errorString();
-			return 0;//TODO throw
+			throw QRngException(QStringLiteral("Failed to read entropy with error: %2")
+								.arg(entropyFile.errorString())
+								.toUtf8());
 		}
 		auto entropy = entropyFile.readLine().trimmed().toInt();
 		entropyFile.close();
@@ -90,4 +92,25 @@ void QRng::setSecurityLevel(QRng::SecurityLevel securityLevel)
 
 	_securityLevel = securityLevel;
 	emit securityLevelChanged(securityLevel);
+}
+
+
+
+QRngException::QRngException(const QByteArray &error) :
+	_error(error)
+{}
+
+const char *QRngException::what() const noexcept
+{
+	return _error.constData();
+}
+
+void QRngException::raise() const
+{
+	throw *this;
+}
+
+QException *QRngException::clone() const
+{
+	return new QRngException(_error);
 }

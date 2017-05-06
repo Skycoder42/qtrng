@@ -3,9 +3,23 @@
 
 #include <QObject>
 #include <QByteArray>
+#include <QException>
 #include <type_traits>
 
-//TODO exceptions!
+class QRngException : public QException
+{
+public:
+	QRngException(const QByteArray &error);
+
+	const char *what() const noexcept override;
+
+	void raise() const override;
+	QException *clone() const override;
+
+private:
+	QByteArray _error;
+};
+
 class QRng : public QObject
 {
 	Q_OBJECT
