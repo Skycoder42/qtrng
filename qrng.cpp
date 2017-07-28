@@ -66,24 +66,10 @@ void QRng::generateRandom(void *data, const int size)
 	}
 	randomFile.close();
 #elif defined(Q_OS_WINRT)
-	BCRYPT_ALG_HANDLE *phAlgorithm = NULL;
-
-	if (!::BCryptOpenAlgorithmProvider(phAlgorithm, BCRYPT_AES_GMAC_ALGORITHM, NULL, BCRYPT_PROV_DISPATCH)) {
+	if (!::BCryptGenRandom(NULL, (PUCHAR)data, (ULONG)size, BCRYPT_USE_SYSTEM_PREFERRED_RNG)) {
 		throw QRngException(QStringLiteral("Failed to load RNG with error: %1")
 							.arg(formatWinError(GetLastError()))
 							.toUtf8());
-	}
-
-	if (!::BCryptGenRandom(phAlgorithm, (PUCHAR)data, (ULONG)size, 0)) {
-		::BCryptCloseAlgorithmProvider(phAlgorithm, 0);
-		throw QRngException(QStringLiteral("Failed to load RNG with error: %1")
-							.arg(formatWinError(GetLastError()))
-							.toUtf8());
-	}
-
-	if (!::BCryptCloseAlgorithmProvider(phAlgorithm, 0)) {
-		qWarning() << "Failed to release RNG with error:"
-				   << formatWinError(GetLastError());
 	}
 #elif defined(Q_OS_WIN)
 	HCRYPTPROV hProvider = NULL;
