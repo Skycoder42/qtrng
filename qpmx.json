@@ -1,0 +1,28 @@
+{
+    "dependencies": [
+    ],
+    "license": {
+        "file": "LICENSE",
+        "name": "BSD_3_CLAUSE"
+    },
+    "prcFile": "de_skycoder42_qrng.prc",
+    "priFile": "de_skycoder42_qrng.pri",
+    "priIncludes": [
+    ],
+    "publishers": {
+        "qpm": {
+            "author": {
+                "email": "skycoder42.de@gmx.de",
+                "name": "Skycoder"
+            },
+            "description": "Qt Random number generator wrapper around \"secure\" os RNGS",
+            "name": "de.skycoder42.qrng",
+            "repository": {
+                "type": "GITHUB",
+                "url": "https://github.com/Skycoder42/qtrng.git"
+            },
+            "webpage": "https://github.com/Skycoder42/qtrng"
+        }
+    },
+    "source": false
+}

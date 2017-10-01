@@ -4,6 +4,6 @@ HEADERS += \
 SOURCES += \
 	$$PWD/qrng.cpp
 
-win32:LIBS += -ladvapi32
-
 INCLUDEPATH += $$PWD
+
+include($$PWD/de_skycoder42_qrng.prc)
